@@ -1,0 +1,33 @@
+.statistics {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+
+  &__table {
+    width: 90%;
+    border-collapse: collapse;
+    margin: 50px auto;
+
+    &__thead-cell {
+      font-weight: 500;
+    }
+
+    &__thead-key {
+      height: 50px;
+      display: flex;
+      align-items: center;
+    }
+
+    &__thead-search {
+      max-width: 100px;
+    }
+  }
+}
+
+.settings {
+  margin-left: 20px;
+}
+
+.recharts-legend-wrapper {
+  position: static !important;
+}
