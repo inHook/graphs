@@ -1,9 +1,12 @@
 import React from 'react';
 import {ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar} from "recharts";
 
-import {BUG_KEYS, months, QUANTITY} from "../../constants/bugKeys";
+import {bugsBuilding} from "../../helpers/bugsBuilding";
+import {tableSearchValidate} from "../../helpers/tableValidate";
+import {BUG_KEYS, QUANTITY} from "../../constants/bugKeys";
 import {TableWithSearch} from "../tableWithSearch";
 import {Select} from "../ui/select";
+import {Loader} from "../ui/loader";
 
 import "./style.scss";
 
@@ -11,6 +14,7 @@ export class Graph extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
+            loader: true,
             monthArray: [],
             monthArrayWithIndex: [],
             arrayForGraphRead: [],
@@ -22,7 +26,7 @@ export class Graph extends React.PureComponent {
             system: "",
             critical: "",
             keysBugs: [],
-            search: {
+            searchValues: {
                 [BUG_KEYS.ID]: "",
                 [BUG_KEYS.SYSTEM]: "",
                 [BUG_KEYS.SUMMARY]: "",
@@ -44,78 +48,16 @@ export class Graph extends React.PureComponent {
     // так же bugsBuilding можно вызвать с новыми this.props.bugs в componentDidUpdate()
     componentDidMount() {
         const {bugs} = this.props;
+        const {data, intervalObj} = bugsBuilding(bugs);
 
-        this.setState({
-            ...this.bugsBuilding(bugs),
-        });
-    };
+        this.intervalObj = intervalObj;
 
-    // начальное преобразование JSON данных в объект для первоначального рендера графика
-    bugsBuilding = (bugs = []) => {
-        const {intervalObj} = this;
-        const monthArray = [];
-        const monthArrayWithIndex = [];
-        const arrayForGraph = [];
-        const systemTypes = [];
-        const criticalTypes = [];
-        const keysBugs = Array.isArray(bugs) && bugs.length && Object.keys(bugs[0]);
-
-        Array.isArray(bugs) && bugs.sort((a, b) => new Date(a[BUG_KEYS.DATE_OF_CREATION]) - new Date(b[BUG_KEYS.DATE_OF_CREATION])).forEach((bug, index) => {
-            const date = new Date(bug[BUG_KEYS.DATE_OF_CREATION]);
-            const month = date.getMonth();
-            const year = date.getFullYear();
-            const monthAndYear = `${months[month]} ${year}`;
-            const system = bug[BUG_KEYS.SYSTEM];
-            const critical = bug[BUG_KEYS.CRITICALITY];
-
-            if (!systemTypes.includes(system)) {
-                systemTypes.push(system);
-            }
-
-            if (!criticalTypes.includes(critical)) {
-                criticalTypes.push(critical);
-            }
-
-            if (!monthArray.includes(monthAndYear)) {
-                monthArray.push(monthAndYear);
-                monthArrayWithIndex.push(`${index}_${monthAndYear}`);
-
-                const getIndex = monthArray.indexOf(monthAndYear);
-                const getKeyWithIndex = monthArrayWithIndex[getIndex];
-
-                intervalObj[getKeyWithIndex] = {
-                    name: monthAndYear,
-                    length: 0,
-                    bugs: [],
-                };
-            }
-
-            const getIndex = monthArray.indexOf(monthAndYear);
-            const getKeyWithIndex = monthArrayWithIndex[getIndex];
-
-            intervalObj[getKeyWithIndex].bugs.push(bug);
-            intervalObj[getKeyWithIndex].length = intervalObj[getKeyWithIndex].bugs.length;
-        });
-
-        for (let key in intervalObj) {
-            arrayForGraph.push({
-                name: intervalObj[key].name,
-                [QUANTITY]: intervalObj[key].length,
-                bugs: intervalObj[key].bugs,
-            })
-        }
-
-        return {
-            monthArray,
-            monthArrayWithIndex,
-            arrayForGraphRead: arrayForGraph,
-            arrayForGraphRender: arrayForGraph,
-            systemTypes,
-            criticalTypes,
-            monthFrom: monthArray[0],
-            monthTo: monthArray[monthArray.length - 1],
-            keysBugs,
-        };
+        setTimeout(() => {
+            this.setState({
+                ...data,
+                loader: false,
+            });
+        }, 0);
     };
 
     // преобразование количества найденных дефектов на основе выбранной системы/критичности дефектов
@@ -153,6 +95,7 @@ export class Graph extends React.PureComponent {
 
         this.setState({
             arrayForGraphRender,
+            loader: false,
         });
     };
 
@@ -163,18 +106,26 @@ export class Graph extends React.PureComponent {
 
         this.setState({
             [name]: value,
+            loader: true,
         }, () => {
-            const {arrayForGraphRead, monthFrom, monthTo, monthArray} = this.state;
-            const getIndexFrom = monthArray.indexOf(monthFrom);
-            const getIndexTo = monthArray.indexOf(monthTo);
+            setTimeout(() => {
+                const {arrayForGraphRead, monthFrom, monthTo, monthArray} = this.state;
+                const getIndexFrom = monthArray.indexOf(monthFrom);
+                const getIndexTo = monthArray.indexOf(monthTo);
 
-            if (getIndexTo >= getIndexFrom) {
-                const arrayForGraphRender = arrayForGraphRead.slice(getIndexFrom, getIndexTo + 1);
+                if (getIndexTo >= getIndexFrom) {
+                    const arrayForGraphRender = arrayForGraphRead.slice(getIndexFrom, getIndexTo + 1);
 
-                arrayForGraphRender && this.setState({
-                    arrayForGraphRender,
-                });
-            }
+                    arrayForGraphRender && this.setState({
+                        arrayForGraphRender,
+                        loader: false,
+                    });
+                } else {
+                    this.setState({
+                        loader: false,
+                    })
+                }
+            }, 0);
         });
     };
 
@@ -184,47 +135,29 @@ export class Graph extends React.PureComponent {
 
         this.setState({
             [name]: value,
+            loader: true,
         }, () => {
-            this.bugsRebuilding();
+            setTimeout(() => {
+                this.bugsRebuilding();
+            }, 0);
         });
     };
 
     // обработчик поиска по колонкам
     searchBug = (e) => {
         const {name, value} = e.target;
-        const {search} = this.state;
+        const {searchValues} = this.state;
 
         this.setState({
-            search: {
-                ...search,
+            searchValues: {
+                ...searchValues,
                 [name]: value,
             },
         });
     };
 
-    // валидация поиска в таблице по введённым значениям
-    tableSearchValidate = (bug) => {
-        const {ID, SYSTEM, SUMMARY, STATE, FOUND_AT, CRITICALITY, DEFECT_TYPE, DATE_OF_CREATION, DATE_OF_CHANGE, CLOSING_DATE, DETECTION_METHOD, REOPENS_AMOUNT} = BUG_KEYS;
-        const {search} = this.state;
-
-        if (bug[ID].toString().includes(search[ID]) &&
-            bug[SYSTEM].includes(search[SYSTEM]) &&
-            bug[SUMMARY].includes(search[SUMMARY]) &&
-            bug[STATE].includes(search[STATE]) &&
-            bug[FOUND_AT].includes(search[FOUND_AT]) &&
-            bug[CRITICALITY].includes(search[CRITICALITY]) &&
-            bug[DEFECT_TYPE].includes(search[DEFECT_TYPE]) &&
-            (!bug[DATE_OF_CREATION] || (bug[DATE_OF_CREATION] && bug[DATE_OF_CREATION].includes(search[DATE_OF_CREATION]))) &&
-            (!bug[DATE_OF_CHANGE] || (bug[DATE_OF_CHANGE] && bug[DATE_OF_CHANGE].includes(search[DATE_OF_CHANGE]))) &&
-            (!bug[CLOSING_DATE] || (bug[CLOSING_DATE] && bug[CLOSING_DATE].includes(search[CLOSING_DATE]))) &&
-            (!bug[DETECTION_METHOD] || (bug[DETECTION_METHOD] && bug[DETECTION_METHOD].includes(search[DETECTION_METHOD]))) &&
-            (!bug[REOPENS_AMOUNT] || (bug[REOPENS_AMOUNT] && bug[REOPENS_AMOUNT].includes(search[REOPENS_AMOUNT])))) {
-            return true;
-        }
-    };
-
     render() {
-        const {arrayForGraphRender, monthArray, monthFrom, monthTo, systemTypes, criticalTypes, system, critical, keysBugs} = this.state;
+        const {arrayForGraphRender, monthArray, monthFrom, monthTo, systemTypes, criticalTypes, system, critical, keysBugs, searchValues, loader} = this.state;
 
         return (
             <>
@@ -280,17 +213,22 @@ export class Graph extends React.PureComponent {
                     </div>
                 </div>
 
-                <TableWithSearch
-                    keysBugs={keysBugs}
-                    searchBug={this.searchBug}
-                    arrayData={arrayForGraphRender}
-                    tableSearchValidate={this.tableSearchValidate}
-                    className="statistics"
-                />
-
+                {loader ? (
+                    <div className="statistics__header">
+                        <h1>Построение графика</h1>
+                        <Loader />
+                    </div>
+                ) : (
+                    <TableWithSearch
+                        keysBugs={keysBugs}
+                        searchBug={this.searchBug}
+                        arrayData={arrayForGraphRender}
+                        tableSearchValidate={tableSearchValidate}
+                        searchValues={searchValues}
+                        className="statistics"
+                    />
+                )}
             </>
-
         )
     };
-
 }

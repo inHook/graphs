@@ -3,6 +3,18 @@
   justify-content: center;
   margin-top: 50px;
 
+  &__header {
+    width: max-content;
+    margin: 60px auto auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h1 {
+      font-weight: 500;
+    }
+  }
+
   &__table {
     width: 90%;
     border-collapse: collapse;

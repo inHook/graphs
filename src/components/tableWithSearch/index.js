@@ -4,7 +4,7 @@ import {BUG_KEYS} from "../../constants/bugKeys";
 
 import "./style.scss";
 
-export const TableWithSearch = ({keysBugs, searchBug, arrayData, tableSearchValidate, className}) => (
+export const TableWithSearch = ({keysBugs, searchBug, arrayData, tableSearchValidate, searchValues, className}) => (
     <div className={`ui-table-search ${className}__table-wrapper`}>
         <table className={`${className}__table`}>
             <thead>
@@ -27,7 +27,7 @@ export const TableWithSearch = ({keysBugs, searchBug, arrayData, tableSearchVali
             {arrayData.map(bug => bug.bugs.map(bug => {
                 const {ID} = BUG_KEYS;
 
-                if (tableSearchValidate(bug)) {
+                if (tableSearchValidate(bug, searchValues)) {
                     return (
                         <tr key={bug[ID]}>
                             {keysBugs.map(key => (
