@@ -39,7 +39,6 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.9.5",
-    "cross-env": "^7.0.2",
     "husky": "^4.2.5",
     "lint-staged": "^10.1.7",
     "node-sass": "^4.14.0",
@@ -52,6 +51,9 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": ["npm run test", "prettier --write"]
+    "*.{js,css,md}": [
+      "npm run test",
+      "prettier --write"
+    ]
   }
 }
