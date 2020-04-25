@@ -19,7 +19,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
+    "test": "jest --all",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -51,6 +51,6 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": ["prettier --write", "jest -t test --passWithNoTests"]
+    "*.test.{js,css,md}": ["npm test"]
   }
 }
