@@ -1,4 +1,4 @@
-import { bugsBuilding } from "./bugsBuilding";
+import { bugsBuilding } from "../helpers/bugsBuilding";
 
 describe("BugsBuilding function test:", () => {
   let array, emptyArray;
