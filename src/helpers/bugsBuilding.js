@@ -71,7 +71,7 @@ export const bugsBuilding = (bugs = []) => {
       arrayForGraphRender: arrayForGraph,
       systemTypes,
       criticalTypes,
-      monthFrom: monthArray[0],
+      // monthFrom: monthArray[0],
       monthTo: monthArray[monthArray.length - 1],
       keysBugs,
     },
