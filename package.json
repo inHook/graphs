@@ -51,7 +51,6 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": "prettier --write",
-    "*.{js}": "jest -t test"
+    "*.{js,css,md}": ["prettier --write", "jest -t test --passWithNoTests"]
   }
 }
