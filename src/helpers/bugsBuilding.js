@@ -59,7 +59,6 @@ export const bugsBuilding = (bugs = []) => {
     arrayForGraph.push({
       name: intervalObj[key].name,
       [QUANTITY]: intervalObj[key].length,
-
       bugs: intervalObj[key].bugs,
     });
   }
