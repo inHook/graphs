@@ -19,7 +19,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest --all",
+    "test": "jest --watch",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.9.5",
+    "cross-env": "^7.0.2",
     "husky": "^4.2.5",
     "lint-staged": "^10.1.7",
     "node-sass": "^4.14.0",
@@ -51,6 +52,6 @@
     }
   },
   "lint-staged": {
-    "*.test.{js,css,md}": ["npm test"]
+    "*.{js,css,md}": "npm run test"
   }
 }

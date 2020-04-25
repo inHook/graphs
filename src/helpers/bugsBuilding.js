@@ -72,7 +72,7 @@ export const bugsBuilding = (bugs = []) => {
       systemTypes,
       criticalTypes,
       monthFrom: monthArray[0],
-      // monthTo: monthArray[monthArray.length - 1],
+      monthTo: monthArray[monthArray.length - 1],
       keysBugs,
     },
     intervalObj,
