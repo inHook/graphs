@@ -13,7 +13,7 @@
     "@types/recharts": "^1.8.9",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
+    "react-scripts": "5.0.1",
     "recharts": "^1.8.5"
   },
   "scripts": {
@@ -41,7 +41,7 @@
     "@babel/preset-env": "^7.9.5",
     "husky": "^4.2.5",
     "lint-staged": "^10.1.7",
-    "node-sass": "^4.14.0",
+    "node-sass": "^9.0.0",
     "prettier": "^2.0.5",
     "typescript": "^3.8.3"
   },
